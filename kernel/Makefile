@@ -7,6 +7,13 @@ else
 
 KDIR	:= /lib/modules/$(shell uname -r)/build
 PWD	:= $(shell pwd)
+MKDIR_P = mkdir -p
+OUT_DIR := /lib/modules/$(shell uname -r)/kernel/net/ipt_ipm/kernel/
+
+directories: ${OUT_DIR}
+
+${OUT_DIR}:
+        ${MKDIR_P} ${OUT_DIR}
 
 all:	modules
 
@@ -16,7 +23,7 @@ modules:
 clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) clean
 
-install:
-	cp *.ko /lib/modules/$(shell uname -r)/kernel/net/ipt_ipm/kernel/
+install: directories
+	cp *.ko ${OUT_DIR}
 	depmod -a
 endif

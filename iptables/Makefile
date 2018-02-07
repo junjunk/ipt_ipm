@@ -10,3 +10,6 @@ lib%.o: lib%.c
 
 clean:
 	rm -f *.o *.so
+
+install: all
+	cp *.so /lib/xtables/
