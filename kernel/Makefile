@@ -10,12 +10,12 @@ PWD	:= $(shell pwd)
 MKDIR_P = mkdir -p
 OUT_DIR := /lib/modules/$(shell uname -r)/kernel/net/ipt_ipm/kernel/
 
+all:	modules
+
 directories: ${OUT_DIR}
 
 ${OUT_DIR}:
 	${MKDIR_P} ${OUT_DIR}
-
-all:	modules
 
 modules:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
