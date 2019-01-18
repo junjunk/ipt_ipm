@@ -7,7 +7,7 @@
 #ifndef _IPT_TWIN_H
 #define _IPT_TWIN_H
 
-#define HASH_MASK ((1<<3)-1)
+#define HASH_MASK ((1<<8)-1)
 
 #include <linux/types.h>
 

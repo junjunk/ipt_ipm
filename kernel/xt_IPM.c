@@ -30,24 +30,26 @@ ip6spoof_tg(struct sk_buff *skb, const struct xt_action_param *par)
 {
 	struct ipv6hdr *iph6;
 	struct iphdr *iph;
+	unsigned char *exthdr;
+	u8 nexthdr;
+	__be16 frag_off;
 
 	if (!skb_make_writable(skb, skb->len))
 		return NF_DROP;
 	iph6 = ipv6_hdr(skb);
-	if (iph6 && iph6->nexthdr == 4)
+	if (!iph6)
+		return XT_CONTINUE;
+	nexthdr = iph6->nexthdr;
+	exthdr = (unsigned char *)iph6 + sizeof(*iph6);
+	ipv6_skip_exthdr(skb, exthdr - skb->data, &nexthdr, &frag_off);
+	if (nexthdr == 4)
 	{
-		iph = ipip_hdr(skb);
-		iph6->saddr.s6_addr32[2] = iph->saddr & HASH_MASK;
-		/*
-		The patch "ipv6: fix flow labels when the traffic class is non-0"
-		https://patchwork.ozlabs.org/patch/721740/
-		fixes flow label id generation, that's why all ip-in-ip6 packets
-		will have the same flow_label and we cannot use it for spreading
-		source ip
-
-		this patch was included in Canonical 4.4.0-83 kernel
-		*/
-		//iph6->saddr.s6_addr32[2] = iph6->flow_lbl[0] & HASH_MASK;
+		iph = inner_ip_hdr(skb);
+		iph6->saddr.s6_addr32[2] = iph->daddr;
+	}
+	else
+	{
+		pr_debug("IPSPOOF next header is not ipv4, type = %d", nexthdr);
 	}
 	return XT_CONTINUE;
 }
